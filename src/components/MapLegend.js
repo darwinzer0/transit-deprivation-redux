@@ -52,6 +52,8 @@ class MapLegend extends Component {
             case "avail":
                 l = "Availability (%)"
                 break;
+            default:
+                break;
         }
         return l;
     }
