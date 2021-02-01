@@ -208,6 +208,13 @@ class Map extends Component {
                     getFillColor: [eta, etaView, colorScheme],
                     getLineWidth: selectedDataZone,
                 },
+            }),
+            new GeoJsonLayer({
+                id: 'clinics',
+                data: clinics,
+                pointRadiusMinPixels: 5,
+                getFillColor: [235, 52, 52, 255],
+                visible: destinationOverlay === "Diabetes Clinics"? true: false
             })
         ];
 
