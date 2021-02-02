@@ -10,6 +10,7 @@ import { setSelectedDataZone,
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
+import {View, MapView} from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
@@ -30,6 +31,7 @@ const styles = (theme) => ({
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 console.log(MAPBOX_TOKEN);
+
 const INITIAL_VIEW_STATE = {
     latitude: -36.8485, // auckland
         longitude: 174.7633,
@@ -180,12 +182,56 @@ class Map extends Component {
         setMapViewState(vs);
     };
 
+    _getElevationValue = (location) => {
+        const { eta, etaView, } = this.props;
+        const inaccesibleElevation = 0;
+        if(eta !== null) {
+            let view = etaView;
+            if (location in eta[view]["values"]) {
+                let rawValue = eta[view]["values"][location];
+                if (rawValue <= 1) {
+                    return Math.round(rawValue * 5000);
+                } else {
+                    return Math.round(rawValue * 50)
+                } 
+            } else {
+                return inaccesibleElevation;
+            }
+        } else {
+            return 0;
+        }   
+    }
+
+    _layerFilter = ({layer, viewport}) => {
+        if (viewport.id === '2dView' && layer.id === 'eta') {
+          // Do not draw the 3d layer in the first view
+          return false;
+        }
+        return true;
+      } 
+
     render() {
         const {
             classes, clinics, colorScheme, dataZones, destinationOverlay, eta,
             etaView, minValue, maxValue, opacity, selectedDataZone,
         } = this.props;
-        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);        
+                
+        const views = [
+                    new MapView({
+                        controller: true,
+                        id: '2dView',
+                        width: '50%',
+                        x: '0%'
+                }),
+                    new MapView({
+                        controller: true,
+                        id: '3dView',
+                        width: '50%',
+                        x: '50%'
+                    })
+                ]
+
 
         const layers = [
             new GeoJsonLayer({
@@ -209,6 +255,35 @@ class Map extends Component {
                     getLineWidth: selectedDataZone,
                 },
             }),
+
+           new GeoJsonLayer({
+                id: '3d-eta',
+                data: dataZones,
+                opacity: opacity,
+                getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                stroked: false, //true,
+                filled: true,
+                lineWidthUnits: "pixels",
+                getFillColor: f => this._getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {
+                    info.handled = true;
+                    this._handleGeoJsonLayerOnClick(event);
+                },
+                extruded: true,
+                wireframe: true,
+                getElevation: f => this._getElevationValue(f.id),
+                elevationScale: 1,
+                elevationRange: [0, 10000],
+                pickable: true,
+                onHover: this._handleMapOnHover,
+                updateTriggers: {
+                    getFillColor: [eta, etaView, colorScheme],
+                    getLineWidth: selectedDataZone,
+                    getElevation: f => this._getElevationValue(f.id)
+                },
+            }),
+
             new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
@@ -221,18 +296,29 @@ class Map extends Component {
         return(
             <div className={classes.map}>
                 <DeckGL
+                    views={views}
                     layers={layers}
                     initialViewState={INITIAL_VIEW_STATE}
-                    controller={true}
                     onClick={ this._handleDeckGLOnClick }
                     onViewStateChange={ this._onViewStateChange }
+                    layerFilter = { this._layerFilter }
                 >
+                <View id = "2d">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
                         preventStyleDiffing={true}
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
+                    </View>
+                    <View id = "3d">
+                    <StaticMap
+                        reuseMaps
+                        mapStyle={mapStyle}
+                        preventStyleDiffing={true}
+                        mapboxApiAccessToken={MAPBOX_TOKEN}
+                    />
+                    </View>
                     {
                         //valid ? (
                         (eta !== null) ? (
