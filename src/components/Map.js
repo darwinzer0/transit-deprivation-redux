@@ -10,7 +10,7 @@ import { setSelectedDataZone,
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import {View, MapView} from '@deck.gl/core';
+import { MapView } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
@@ -33,74 +33,25 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 console.log(MAPBOX_TOKEN);
 
 const INITIAL_VIEW_STATE = {
+    rightView: {
     latitude: -36.8485, // auckland
         longitude: 174.7633,
-        zoom: 11,
+        zoom: 10,
         maxZoom: 16,
         pitch: 0,
-        bearing: 0
+        bearing: 0 },
+
+    leftView: {
+        latitude: -36.8485, // auckland
+            longitude: 174.7633,
+            zoom: 10,
+            maxZoom: 16,
+            pitch: 45,
+            maxpitch:60,
+            bearing: 0 }
 };
 
 class Map extends Component {
-
-    /**
-    constructor(props) {
-        super(props);
-        this.state = {
-            layers: [],
-        };
-    }
-     **/
-
-    /**
-    componentDidMount() {
-        const { dataZones, opacity, eta, etaView, colorScheme, selectedDataZone } = this.props;
-        this.setState({
-            layers: [
-                new GeoJsonLayer({
-                    id: 'eta',
-                    data: dataZones,
-                    opacity: opacity,
-                    getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                    stroked: true,
-                    filled: true,
-                    lineWidthUnits: "pixels",
-                    getFillColor: f => this._getColor(f.id),
-                    getLineColor: [255, 255, 255],
-                    onClick: (event, info) => {
-                        info.handled = true;
-                        this._handleGeoJsonLayerOnClick(event);
-                    },
-                    pickable: true,
-                    onHover: this._handleMapOnHover,
-                    updateTriggers: {
-                        getFillColor: [eta, etaView, colorScheme],
-                        getLineWidth: selectedDataZone,
-                    },
-                })
-            ]
-        });
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const { clinics, destinationOverlay } = this.props;
-        if (prevProps.destinationOverlay !== destinationOverlay) {
-            // add dataset specific layers
-
-            if (destinationOverlay === "Diabetes Clinics") {
-                this.layers.push(
-                    new GeoJsonLayer({
-                        id: 'clinics',
-                        data: clinics,
-                        pointRadiusMinPixels: 5,
-                        getFillColor: [235, 52, 52, 255],
-                    })
-                )
-            }
-
-        }
-    }
-    **/
 
     _getColor = (location) => {
         const { colorScheme, eta, etaView, } = this.props;
@@ -203,11 +154,14 @@ class Map extends Component {
     }
 
     _layerFilter = ({layer, viewport}) => {
-        if (viewport.id === '2dView' && layer.id === 'eta') {
-          // Do not draw the 3d layer in the first view
-          return false;
+        console.log("vp is: ", viewport);
+        const drawThreeD = layer.id.startsWith('threed-eta'); 
+        if ( viewport.id === 'leftView') {
+          // draw the 3d layer in the left view
+          console.log('get here, no 3D in vp one', viewport);
+          return drawThreeD;
         }
-        return true;
+        return !drawThreeD;
       } 
 
     render() {
@@ -218,15 +172,15 @@ class Map extends Component {
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);        
                 
         const views = [
-                    new MapView({
-                        controller: true,
-                        id: '2dView',
-                        width: '50%',
-                        x: '0%'
+                new MapView({
+                    controller: true,
+                    id: 'rightView',
+                    width: '50%',
+                    x: '0%'
                 }),
                     new MapView({
                         controller: true,
-                        id: '3dView',
+                        id: 'leftView',
                         width: '50%',
                         x: '50%'
                     })
@@ -235,35 +189,14 @@ class Map extends Component {
 
         const layers = [
             new GeoJsonLayer({
-                id: 'eta',
-                data: dataZones,
-                opacity: opacity,
-                getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                stroked: true,
-                filled: true,
-                lineWidthUnits: "pixels",
-                getFillColor: f => this._getColor(f.id),
-                getLineColor: [255, 255, 255],
-                onClick: (event, info) => {
-                    info.handled = true;
-                    this._handleGeoJsonLayerOnClick(event);
-                },
-                pickable: true,
-                onHover: this._handleMapOnHover,
-                updateTriggers: {
-                    getFillColor: [eta, etaView, colorScheme],
-                    getLineWidth: selectedDataZone,
-                },
-            }),
-
-           new GeoJsonLayer({
-                id: '3d-eta',
+                id: 'threed-eta',
                 data: dataZones,
                 opacity: opacity,
                 getLineWidth: f => this._matchesSelectedDataZone(f.id),
                 stroked: false, //true,
                 filled: true,
                 lineWidthUnits: "pixels",
+                // getFillColor: [160, 160, 180, 200],  // test color to see if I get two layers
                 getFillColor: f => this._getColor(f.id),
                 getLineColor: [255, 255, 255],
                 onClick: (event, info) => {
@@ -285,6 +218,27 @@ class Map extends Component {
             }),
 
             new GeoJsonLayer({
+                id: 'eta',
+                data: dataZones,
+                opacity: opacity,
+                getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                stroked: true,
+                filled: true,
+                lineWidthUnits: "pixels",
+                getFillColor: f => this._getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {
+                    info.handled = true;
+                    this._handleGeoJsonLayerOnClick(event);
+                },
+                pickable: true,
+                onHover: this._handleMapOnHover,
+                updateTriggers: {
+                    getFillColor: [eta, etaView, colorScheme],
+                    getLineWidth: selectedDataZone,
+                },
+            }),
+            new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
                 pointRadiusMinPixels: 5,
@@ -303,22 +257,22 @@ class Map extends Component {
                     onViewStateChange={ this._onViewStateChange }
                     layerFilter = { this._layerFilter }
                 >
-                <View id = "2d">
+                <MapView id = "rightView">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
-                        preventStyleDiffing={true}
+                        //preventStyleDiffing={true}
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
-                    </View>
-                    <View id = "3d">
+                </MapView>
+                <MapView id = "leftView">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
-                        preventStyleDiffing={true}
+                        //preventStyleDiffing={true}
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
-                    </View>
+                </MapView>
                     {
                         //valid ? (
                         (eta !== null) ? (
