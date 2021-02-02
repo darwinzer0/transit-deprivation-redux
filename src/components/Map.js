@@ -193,7 +193,7 @@ class Map extends Component {
                 data: dataZones,
                 opacity: opacity,
                 getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                stroked: false, //true,
+                stroked: true,
                 filled: true,
                 lineWidthUnits: "pixels",
                 // getFillColor: [160, 160, 180, 200],  // test color to see if I get two layers
