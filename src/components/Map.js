@@ -234,7 +234,7 @@ class Map extends Component {
                 id: 'clinics',
                 data: clinics,
                 pointRadiusMinPixels: 5,
-                getFillColor: [235, 52, 52, 255],
+                getFillColor: [175,141,195,255], // color bind safe color for the clinics. the old red [235, 52, 52, 255],
                 visible: destinationOverlay === "Diabetes Clinics"? true: false
             })
         ];
