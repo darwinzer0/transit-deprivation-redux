@@ -10,7 +10,6 @@ import { setSelectedDataZone,
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import { MapView } from '@deck.gl/core';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import MapTooltip  from './MapTooltip';
 import MapLegend from './MapLegend';
@@ -31,8 +30,75 @@ const styles = (theme) => ({
 const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 console.log(MAPBOX_TOKEN);
+const INITIAL_VIEW_STATE = {
+    latitude: -36.8485, // auckland
+        longitude: 174.7633,
+        zoom: 11,
+        maxZoom: 16,
+        pitch: 45,
+        bearing: 0
+};
 
 class Map extends Component {
+
+    /**
+    constructor(props) {
+        super(props);
+        this.state = {
+            layers: [],
+        };
+    }
+     **/
+
+    /**
+    componentDidMount() {
+        const { dataZones, opacity, eta, etaView, colorScheme, selectedDataZone } = this.props;
+        this.setState({
+            layers: [
+                new GeoJsonLayer({
+                    id: 'eta',
+                    data: dataZones,
+                    opacity: opacity,
+                    getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                    stroked: true,
+                    filled: true,
+                    lineWidthUnits: "pixels",
+                    getFillColor: f => this._getColor(f.id),
+                    getLineColor: [255, 255, 255],
+                    onClick: (event, info) => {
+                        info.handled = true;
+                        this._handleGeoJsonLayerOnClick(event);
+                    },
+                    pickable: true,
+                    onHover: this._handleMapOnHover,
+                    updateTriggers: {
+                        getFillColor: [eta, etaView, colorScheme],
+                        getLineWidth: selectedDataZone,
+                    },
+                })
+            ]
+        });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const { clinics, destinationOverlay } = this.props;
+        if (prevProps.destinationOverlay !== destinationOverlay) {
+            // add dataset specific layers
+
+            if (destinationOverlay === "Diabetes Clinics") {
+                this.layers.push(
+                    new GeoJsonLayer({
+                        id: 'clinics',
+                        data: clinics,
+                        pointRadiusMinPixels: 5,
+                        getFillColor: [235, 52, 52, 255],
+                    })
+                )
+            }
+
+        }
+    }
+    **/
 
     _getColor = (location) => {
         const { colorScheme, eta, etaView, } = this.props;
@@ -40,7 +106,7 @@ class Map extends Component {
         const defaultColor = [128, 128, 128, 24];
         const inaccessibleColor = [128, 128, 128, 0];
         if(eta !== null) {
-            // console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
+            //console.log(`loc: ${location} view: ${this.state.etaView} v: ${this.state.eta[this.state.etaView]["values"][location]}`);
             let view = etaView;
             if (location in eta[view]["values"]){
                 let v = eta[view]["values"][location];
@@ -108,24 +174,10 @@ class Map extends Component {
         const { selectedDataZone } = this.props;
         return (selectedDataZone === datazone) ? 2 : 0;
     };
-    
-    _onViewStateChange = (vs) => {
-        const { setMapViewState } = this.props;
-        // it seems that Deck just pass the first view object as default vs
-        console.log(vs.viewId);
-        let newViewState = {
-            rightMapView: {
-                ...vs.viewState,
-            },
-            leftMapView: {
-                ...vs.viewState,
-                //pitch: vs.viewState.pitch,
-                longitude: vs.viewState.longitude,
-                latitude: vs.viewState.latitude
 
-            }
-        };
-        setMapViewState(newViewState);
+    _onViewStateChange = vs => {
+        const { setMapViewState } = this.props;
+        setMapViewState(vs);
     };
 
     _getElevationValue = (location) => {
@@ -135,6 +187,7 @@ class Map extends Component {
             let view = etaView;
             if (location in eta[view]["values"]) {
                 let rawValue = eta[view]["values"][location];
+                console.log("test  ", rawValue);
                 if (rawValue <= 1) {
                     return Math.round(rawValue * 5000);
                 } else {
@@ -148,45 +201,20 @@ class Map extends Component {
         }   
     }
 
-    _layerFilter = ({layer, viewport}) => {
-        const drawThreeD = layer.id.startsWith('threed-eta'); 
-        if ( viewport.id === 'leftMapView') {
-            // draw the 3d layer in the left view
-            return drawThreeD;
-        }
-        return !drawThreeD;
-      } 
-
     render() {
         const {
             classes, clinics, colorScheme, dataZones, destinationOverlay, eta,
-            etaView, minValue, maxValue, opacity, selectedDataZone, mapViewState
+            etaView, minValue, maxValue, opacity, selectedDataZone,
         } = this.props;
-        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);        
-        
-        const views = [
-                new MapView({
-                    id: "rightMapView", // this Id is the id of the HTML element
-                    controller: true,
-                    width: '50%',
-                    x: '0%'
-                }),
-                new MapView({
-                    id: "leftMapView",
-                    controller: true,
-                    width: '50%',
-                    x: '50%'
-                })
-            ]
-
+        const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
 
         const layers = [
             new GeoJsonLayer({
-                id: 'threed-eta',
+                id: '3d-eta',
                 data: dataZones,
                 opacity: opacity,
                 getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                stroked: true,
+                stroked: false, //true,
                 filled: true,
                 lineWidthUnits: "pixels",
                 getFillColor: f => this._getColor(f.id),
@@ -210,27 +238,6 @@ class Map extends Component {
             }),
 
             new GeoJsonLayer({
-                id: 'eta',
-                data: dataZones,
-                opacity: opacity,
-                getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                stroked: true,
-                filled: true,
-                lineWidthUnits: "pixels",
-                getFillColor: f => this._getColor(f.id),
-                getLineColor: [255, 255, 255],
-                onClick: (event, info) => {
-                    info.handled = true;
-                    this._handleGeoJsonLayerOnClick(event);
-                },
-                pickable: true,
-                onHover: this._handleMapOnHover,
-                updateTriggers: {
-                    getFillColor: [eta, etaView, colorScheme],
-                    getLineWidth: selectedDataZone,
-                },
-            }),
-            new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
                 pointRadiusMinPixels: 5,
@@ -242,31 +249,18 @@ class Map extends Component {
         return(
             <div className={classes.map}>
                 <DeckGL
-                    views={views}
                     layers={layers}
-                    // TODO: not using initial view but viewState, it seems to override the views?
-                    viewState={mapViewState}
+                    initialViewState={INITIAL_VIEW_STATE}
+                    controller={true}
                     onClick={ this._handleDeckGLOnClick }
-                    // TODO share the state between two maps
                     onViewStateChange={ this._onViewStateChange }
-                    layerFilter = { this._layerFilter }
                 >
-                <MapView id = "rightMapView">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
-                        //preventStyleDiffing={true}
+                        preventStyleDiffing={true}
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
-                </MapView>
-                <MapView id = "leftMapView">
-                    <StaticMap
-                        reuseMaps
-                        mapStyle={mapStyle}
-                        //preventStyleDiffing={true}
-                        mapboxApiAccessToken={MAPBOX_TOKEN}
-                    />
-                </MapView>
                     {
                         //valid ? (
                         (eta !== null) ? (
@@ -288,7 +282,6 @@ class Map extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        mapViewState: state.mapViewState,
         minValue: state.mapMinValue,
         maxValue: state.mapMaxValue,
         eta: state.eta,

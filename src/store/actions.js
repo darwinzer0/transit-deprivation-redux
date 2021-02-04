@@ -54,7 +54,7 @@ export function setMapColorScheme(mapColorScheme) {
 }
 
 export function setMapViewState(mapViewState) {
-    // receives the changes on the view?
+    // receives the changes on the view update
     return {
         type: types.SET_MAP_VIEW_STATE,
         mapViewState
