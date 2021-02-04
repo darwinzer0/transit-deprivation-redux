@@ -35,71 +35,11 @@ const INITIAL_VIEW_STATE = {
         longitude: 174.7633,
         zoom: 11,
         maxZoom: 16,
-        pitch: 45,
+        pitch: 0,
         bearing: 0
 };
 
 class Map extends Component {
-
-    /**
-    constructor(props) {
-        super(props);
-        this.state = {
-            layers: [],
-        };
-    }
-     **/
-
-    /**
-    componentDidMount() {
-        const { dataZones, opacity, eta, etaView, colorScheme, selectedDataZone } = this.props;
-        this.setState({
-            layers: [
-                new GeoJsonLayer({
-                    id: 'eta',
-                    data: dataZones,
-                    opacity: opacity,
-                    getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                    stroked: true,
-                    filled: true,
-                    lineWidthUnits: "pixels",
-                    getFillColor: f => this._getColor(f.id),
-                    getLineColor: [255, 255, 255],
-                    onClick: (event, info) => {
-                        info.handled = true;
-                        this._handleGeoJsonLayerOnClick(event);
-                    },
-                    pickable: true,
-                    onHover: this._handleMapOnHover,
-                    updateTriggers: {
-                        getFillColor: [eta, etaView, colorScheme],
-                        getLineWidth: selectedDataZone,
-                    },
-                })
-            ]
-        });
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const { clinics, destinationOverlay } = this.props;
-        if (prevProps.destinationOverlay !== destinationOverlay) {
-            // add dataset specific layers
-
-            if (destinationOverlay === "Diabetes Clinics") {
-                this.layers.push(
-                    new GeoJsonLayer({
-                        id: 'clinics',
-                        data: clinics,
-                        pointRadiusMinPixels: 5,
-                        getFillColor: [235, 52, 52, 255],
-                    })
-                )
-            }
-
-        }
-    }
-    **/
-
     _getColor = (location) => {
         const { colorScheme, eta, etaView, } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
@@ -209,12 +149,40 @@ class Map extends Component {
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
 
         const layers = [
+            // new GeoJsonLayer({
+            //     id: '3d-eta',
+            //     data: dataZones,
+            //     opacity: opacity,
+            //     getLineWidth: f => this._matchesSelectedDataZone(f.id),
+            //     stroked: false, //true,
+            //     filled: true,
+            //     lineWidthUnits: "pixels",
+            //     getFillColor: f => this._getColor(f.id),
+            //     getLineColor: [255, 255, 255],
+            //     onClick: (event, info) => {
+            //         info.handled = true;
+            //         this._handleGeoJsonLayerOnClick(event);
+            //     },
+            //     extruded: true,
+            //     wireframe: true,
+            //     getElevation: f => this._getElevationValue(f.id),
+            //     elevationScale: 1,
+            //     elevationRange: [0, 10000],
+            //     pickable: true,
+            //     onHover: this._handleMapOnHover,
+            //     updateTriggers: {
+            //         getFillColor: [eta, etaView, colorScheme],
+            //         getLineWidth: selectedDataZone,
+            //         getElevation: f => this._getElevationValue(f.id)
+            //     },
+            // }),
+
             new GeoJsonLayer({
-                id: '3d-eta',
+                id: 'eta',
                 data: dataZones,
                 opacity: opacity,
                 getLineWidth: f => this._matchesSelectedDataZone(f.id),
-                stroked: false, //true,
+                stroked: true,
                 filled: true,
                 lineWidthUnits: "pixels",
                 getFillColor: f => this._getColor(f.id),
@@ -223,17 +191,11 @@ class Map extends Component {
                     info.handled = true;
                     this._handleGeoJsonLayerOnClick(event);
                 },
-                extruded: true,
-                wireframe: true,
-                getElevation: f => this._getElevationValue(f.id),
-                elevationScale: 1,
-                elevationRange: [0, 10000],
                 pickable: true,
                 onHover: this._handleMapOnHover,
                 updateTriggers: {
                     getFillColor: [eta, etaView, colorScheme],
                     getLineWidth: selectedDataZone,
-                    getElevation: f => this._getElevationValue(f.id)
                 },
             }),
 
