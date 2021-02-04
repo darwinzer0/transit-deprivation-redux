@@ -1,9 +1,10 @@
-import * as types from './actionTypes'
+import * as types from './actionTypes' // type fields should be strings of meaningful names
 import { mean, deviation, max, min } from "d3";
 
 const DT_SERVER = process.env.REACT_APP_DTServer || "http://0.0.0.0:8081";
 
 export function setEtaView(etaView) {
+    // return action object
     return {
         type: types.SET_ETA_VIEW,
         etaView
@@ -53,11 +54,16 @@ export function setMapColorScheme(mapColorScheme) {
 }
 
 export function setMapViewState(mapViewState) {
+    console.log('@action ',mapViewState);
+    // if(mapViewState.viewId === "rightMapView") {
+    //     //console.log('@action can I see nested view state object',mapViewState.viewState);
+    // }
     return {
         type: types.SET_MAP_VIEW_STATE,
         mapViewState
     }
 }
+
 
 export function setSelectedDataZone(selectedDataZone) {
     return {

@@ -32,25 +32,6 @@ const mapStyle = 'mapbox://styles/mapbox/light-v9';
 const MAPBOX_TOKEN = process.env.REACT_APP_MapboxAccessToken;
 console.log(MAPBOX_TOKEN);
 
-const INITIAL_VIEW_STATE = {
-    rightView: {
-    latitude: -36.8485, // auckland
-        longitude: 174.7633,
-        zoom: 10,
-        maxZoom: 16,
-        pitch: 0,
-        bearing: 0 },
-
-    leftView: {
-        latitude: -36.8485, // auckland
-            longitude: 174.7633,
-            zoom: 10,
-            maxZoom: 16,
-            pitch: 45,
-            maxpitch:60,
-            bearing: 0 }
-};
-
 class Map extends Component {
 
     _getColor = (location) => {
@@ -127,10 +108,15 @@ class Map extends Component {
         const { selectedDataZone } = this.props;
         return (selectedDataZone === datazone) ? 2 : 0;
     };
-
-    _onViewStateChange = vs => {
+    
+    _onViewStateChange = (vs) => {
         const { setMapViewState } = this.props;
-        setMapViewState(vs);
+        let newViewState = {
+            leftMapView: vs.viewState,
+            rightMapView: vs.viewState
+        };
+        console.log("after", newViewState);
+        setMapViewState(newViewState);
     };
 
     _getElevationValue = (location) => {
@@ -154,12 +140,10 @@ class Map extends Component {
     }
 
     _layerFilter = ({layer, viewport}) => {
-        console.log("vp is: ", viewport);
         const drawThreeD = layer.id.startsWith('threed-eta'); 
-        if ( viewport.id === 'leftView') {
-          // draw the 3d layer in the left view
-          console.log('get here, no 3D in vp one', viewport);
-          return drawThreeD;
+        if ( viewport.id === 'leftMapView') {
+            // draw the 3d layer in the left view
+            return drawThreeD;
         }
         return !drawThreeD;
       } 
@@ -167,24 +151,26 @@ class Map extends Component {
     render() {
         const {
             classes, clinics, colorScheme, dataZones, destinationOverlay, eta,
-            etaView, minValue, maxValue, opacity, selectedDataZone,
+            etaView, minValue, maxValue, opacity, selectedDataZone, mapViewState
         } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);        
-                
+        
         const views = [
                 new MapView({
+                    id: "rightMapView", // this Id is the id of the HTML element
                     controller: true,
-                    id: 'rightView',
                     width: '50%',
                     x: '0%'
                 }),
-                    new MapView({
-                        controller: true,
-                        id: 'leftView',
-                        width: '50%',
-                        x: '50%'
-                    })
-                ]
+                new MapView({
+                    id: "leftMapView",
+                    pitch:45,
+                    maxPitch: 60,
+                    controller: true,
+                    width: '50%',
+                    x: '50%'
+                })
+            ]
 
 
         const layers = [
@@ -196,7 +182,6 @@ class Map extends Component {
                 stroked: true,
                 filled: true,
                 lineWidthUnits: "pixels",
-                // getFillColor: [160, 160, 180, 200],  // test color to see if I get two layers
                 getFillColor: f => this._getColor(f.id),
                 getLineColor: [255, 255, 255],
                 onClick: (event, info) => {
@@ -252,12 +237,14 @@ class Map extends Component {
                 <DeckGL
                     views={views}
                     layers={layers}
-                    initialViewState={INITIAL_VIEW_STATE}
+                    // TODO: not using initial view but viewState, it seems to override the views?
+                    viewState={mapViewState}
                     onClick={ this._handleDeckGLOnClick }
+                    // TODO share the state between two maps
                     onViewStateChange={ this._onViewStateChange }
                     layerFilter = { this._layerFilter }
                 >
-                <MapView id = "rightView">
+                <MapView id = "rightMapView">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
@@ -265,7 +252,7 @@ class Map extends Component {
                         mapboxApiAccessToken={MAPBOX_TOKEN}
                     />
                 </MapView>
-                <MapView id = "leftView">
+                <MapView id = "leftMapView">
                     <StaticMap
                         reuseMaps
                         mapStyle={mapStyle}
@@ -294,6 +281,7 @@ class Map extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        mapViewState: state.mapViewState,
         minValue: state.mapMinValue,
         maxValue: state.mapMaxValue,
         eta: state.eta,

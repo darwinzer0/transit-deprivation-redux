@@ -23,12 +23,21 @@ export default {
     mapMinValue: 0.0,
     mapMaxValue: 1.0,
     mapViewState: {
-        latitude: -36.8485, // auckland
-        longitude: 174.7633,
-        zoom: 11,
-        maxZoom: 16,
-        pitch: 0,
-        bearing: 0
+        rightMapView: {
+            latitude: -36.8485, // auckland
+            longitude: 174.7633,
+            zoom: 10,
+            maxZoom: 16
+        },
+        leftMapView: {
+            latitude: -36.8485, // auckland
+            longitude: 174.7633,
+            pitch:45,
+            maxPitch:60,
+            zoom: 10,
+            maxZoom: 16,
+            pitch: 45
+        }
     },
     mapTooltip: {
         showHover: false,
