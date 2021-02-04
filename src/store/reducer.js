@@ -43,17 +43,6 @@ export default function reducer(state = initialState, action) {
                 ...state,
                 mapViewState: action.mapViewState
             };
-        // TODO: is it necesary to use two states????
-        // case types.SET_RIGHT_MAP_VIEW_STATE:
-        //     return {
-        //         ...state,
-        //         rightMapViewState: action.rightMapViewState
-        //     };
-        // case types.SET_LEFT_MAP_VIEW_STATE:
-        //     return {
-        //         ...state,
-        //         leftMapViewState: action.leftMapViewState
-        //     };
         case types.SET_SELECTED_DATA_ZONE:
             return {
                 ...state,

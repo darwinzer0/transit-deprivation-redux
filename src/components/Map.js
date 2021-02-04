@@ -111,11 +111,20 @@ class Map extends Component {
     
     _onViewStateChange = (vs) => {
         const { setMapViewState } = this.props;
+        // it seems that Deck just pass the first view object as default vs
+        console.log(vs.viewId);
         let newViewState = {
-            leftMapView: vs.viewState,
-            rightMapView: vs.viewState
+            rightMapView: {
+                ...vs.viewState,
+            },
+            leftMapView: {
+                ...vs.viewState,
+                //pitch: vs.viewState.pitch,
+                longitude: vs.viewState.longitude,
+                latitude: vs.viewState.latitude
+
+            }
         };
-        console.log("after", newViewState);
         setMapViewState(newViewState);
     };
 
@@ -164,8 +173,6 @@ class Map extends Component {
                 }),
                 new MapView({
                     id: "leftMapView",
-                    pitch:45,
-                    maxPitch: 60,
                     controller: true,
                     width: '50%',
                     x: '50%'

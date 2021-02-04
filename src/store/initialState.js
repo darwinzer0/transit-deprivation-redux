@@ -27,16 +27,16 @@ export default {
             latitude: -36.8485, // auckland
             longitude: 174.7633,
             zoom: 10,
-            maxZoom: 16
+            maxZoom: 16,
+            bearing: 0,
         },
         leftMapView: {
             latitude: -36.8485, // auckland
             longitude: 174.7633,
-            pitch:45,
-            maxPitch:60,
             zoom: 10,
+            pitch: 45,
             maxZoom: 16,
-            pitch: 45
+            bearing: 0,
         }
     },
     mapTooltip: {

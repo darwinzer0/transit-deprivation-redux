@@ -54,10 +54,7 @@ export function setMapColorScheme(mapColorScheme) {
 }
 
 export function setMapViewState(mapViewState) {
-    console.log('@action ',mapViewState);
-    // if(mapViewState.viewId === "rightMapView") {
-    //     //console.log('@action can I see nested view state object',mapViewState.viewState);
-    // }
+    // receives the changes on the view?
     return {
         type: types.SET_MAP_VIEW_STATE,
         mapViewState
