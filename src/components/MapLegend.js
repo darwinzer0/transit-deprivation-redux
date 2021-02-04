@@ -59,7 +59,7 @@ class MapLegend extends Component {
     }
 
     render() {
-        const { classes, minValue, maxValue, etaView, colorScheme, opacity } = this.props;
+        const { classes, minValue, maxValue, etaView, colorScheme, opacity, timeLimit } = this.props;
         let width = 300;
         let height = 8;
         let xpad = 5;
@@ -69,6 +69,10 @@ class MapLegend extends Component {
         if (etaView === "avail") {
             vmin = minValue * 100;
             vmax = maxValue * 100;
+        }
+        if (etaView === "mean") {
+            vmin = 0;
+            vmax = timeLimit;
         }
 
         let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
@@ -144,6 +148,7 @@ const mapStateToProps = (state) => {
         maxValue: state.mapMaxValue,
         colorScheme: state.mapColorScheme,
         opacity: state.mapOpacity,
+        timeLimit: state.timeLimit
     }
 };
 
