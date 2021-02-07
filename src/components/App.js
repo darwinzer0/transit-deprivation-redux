@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
-import { Paper, Grid, Typography } from '@material-ui/core';
+import { Paper, Grid, Typography, Accordion, AccordionSummary, AccordionDetails} from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DatasetSelector from "./DatasetSelector";
 import TimeLimitSlider from "./TimeLimitSlider";
 import OpacitySlider from "./OpacitySlider";
@@ -45,12 +46,25 @@ class App extends Component {
                             <Typography variant="h4" gutterBottom>
                                 Transit & Deprivation
                             </Typography>
-                            <Typography paragraph style={{whiteSpace: 'pre-line'}}>
-                                {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
-                                "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
-                                "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
-                                }
-                            </Typography>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-label="Expand"
+                                    aria-controls="additional-actions1-content"
+                                    id="additional-actions1-header"
+                                    >
+                                    <Typography className={classes.heading}>Show site infomation</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Typography paragraph style={{whiteSpace: 'pre-line'}}>
+                                        {"This tool will visualise the travel time between origins and destinations in the Auckland Region when using public transport. \n\n" +
+                                        "Click on the map to view the travel time from there to the rest of Auckland. To clear the map, select an empty location, such as the ocean. \n\n" +
+                                        "You can visualise how accessibility changes with the amount of time available by using the time limit slider in the control settings below."
+                                        }
+                                    </Typography>
+                                </AccordionDetails>
+                            </Accordion>
+
                         </Paper>
                     </Grid>
                     <Grid item>
