@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { withStyles, createMuiTheme} from '@material-ui/core/styles';
 import { Grid, Select, MenuItem, Typography} from '@material-ui/core';
-import { setEtaView, setDestinationDataset } from "../store/actions";
+import { setEtaView, setDestinationDataset, setSelectorId } from "../store/actions";
 
 const theme = createMuiTheme({
     palette: {
@@ -18,8 +18,10 @@ const styles = (theme) => ({
 class DatasetSelector extends Component {
 
     handleEtaViewChange = event => {
-        const { setEtaView } = this.props;
+        const { setEtaView, setSelectorId } = this.props;
+        console.log("check selec ", event.target.value, event.target.name);
         setEtaView(event.target.value);
+        setSelectorId(event.target.name);
     }
 
     handleDestinationDatasetChange = event => {
@@ -36,9 +38,10 @@ class DatasetSelector extends Component {
         }
 
         return (
+        
             <Grid container direction="column" spacing={2}>
                 <Grid item>
-                    <Typography variant="h5">Data</Typography>
+                    <Typography variant="h5">Select Data For Right Map</Typography>
                 </Grid>
                 <Grid container item direction="row" spacing={3} alignItems="center">
                     <Grid item>
@@ -47,8 +50,49 @@ class DatasetSelector extends Component {
                     <Grid item>
                         <Select
                             className={classes.etaViewSelector}
-                            value={etaView}
+                            value={etaView.rightMap}
                             onChange={this.handleEtaViewChange}
+                            name = "rightMapSelect"
+                        >
+                            <MenuItem value={"avail"}>Availability</MenuItem>
+                            <MenuItem value={"mean"}>Mean</MenuItem>
+                            <MenuItem value={"stdev"}>Standard Deviation</MenuItem>
+                        </Select>
+                    </Grid>
+                </Grid>
+                <Grid container item direction="row" spacing={3} alignItems="center">
+                    <Grid item>
+                        <Typography>Destinations</Typography>
+                    </Grid>
+                    <Grid item style={{marginLeft:32}}>
+                        <Select
+                            className={classes.datasetSelector}
+                            value={destinationDataset}
+                            onChange={this.handleDestinationDatasetChange}
+                        >
+                            <MenuItem value={"None"}>None</MenuItem>
+                            <MenuItem value={"Diabetes Clinics"}>Diabetes Clinics</MenuItem>
+                        </Select>
+                    </Grid>
+                </Grid>
+                <Grid item>
+                    <Typography variant="body1" paragraph style={{whiteSpace: 'pre-line'}}>
+                        {infoStr[destinationDataset]}
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    <Typography variant="h5">Select Data For Left Map</Typography>
+                </Grid>
+                <Grid container item direction="row" spacing={3} alignItems="center">
+                    <Grid item>
+                        <Typography>Travel Time View</Typography>
+                    </Grid>
+                    <Grid item>
+                        <Select
+                            className={classes.etaViewSelector}
+                            value={etaView.leftMap}
+                            onChange={this.handleEtaViewChange}
+                            name = "leftMapSelect"
                         >
                             <MenuItem value={"avail"}>Availability</MenuItem>
                             <MenuItem value={"mean"}>Mean</MenuItem>
@@ -84,6 +128,7 @@ class DatasetSelector extends Component {
 const mapStateToProps = (state) => {
     return {
         etaView: state.etaView,
+        selectorId: state.selectorId,
         destinationDataset: state.destinationDataset,
     }
 };
@@ -91,7 +136,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return ({
         setEtaView: (measureType) => { dispatch(setEtaView(measureType)) },
-        setDestinationDataset: (dataset) => { dispatch(setDestinationDataset(dataset))}
+        setSelectorId: (selectorId) => { dispatch(setSelectorId(selectorId)) },
+        setDestinationDataset: (dataset) => { dispatch(setDestinationDataset(dataset))} 
     });
 }
 

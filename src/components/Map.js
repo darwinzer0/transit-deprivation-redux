@@ -6,7 +6,8 @@ import { setSelectedDataZone,
          setMapTooltip,
          setMapViewState,
          getLocationDT,
-         resetETA } from "../store/actions";
+         resetETA
+         } from "../store/actions";
 // mapping
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
@@ -149,18 +150,32 @@ class Map extends Component {
     }
 
     _layerFilter = ({layer, viewport}) => {
-        const drawThreeD = layer.id.startsWith('threed-eta'); 
-        if ( viewport.id === 'leftMapView') {
+        const {selectorId} = this.props;
+        // When two maps are sharing a same layer, it seems impossilbe to 
+        // select different dataset in seperate mapviews, hence the 
+        // layer deplicated with different ids
+        const drawThreeDOnRight = layer.id.startsWith('threed-eta'); 
+        const drawTwoDOnRight = layer.id.startsWith('eta'); 
+        //const drawThreeDOnLeft = layer.id.startsWith('threed-eta-left'); 
+        const drawTwoDOnLeft = layer.id.startsWith('eta-left'); 
+        const drawClinics = layer.id.startsWith('clinics'); 
+        //if ( viewport.id === 'leftMapView') {
+        console.log("check ", viewport.id, selectorId);
+        if ( viewport.id === "leftMapView" && selectorId === "leftMapSelect") {
             // draw the 3d layer in the left view
-            return drawThreeD;
+            return drawTwoDOnLeft;
         }
-        return !drawThreeD;
+        if ( viewport.id === "rightMapView" && selectorId === "rightMapSelect") {
+            // draw the 3d layer in the left view
+            return drawThreeDOnRight;
+        }
+        return drawTwoDOnLeft;
       } 
 
     render() {
         const {
             classes, clinics, colorScheme, dataZones, destinationOverlay, eta,
-            etaView, minValue, maxValue, opacity, selectedDataZone, mapViewState
+            etaView, minValue, maxValue, opacity, selectedDataZone, mapViewState, selectorId
         } = this.props;
         const mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);        
         
@@ -230,6 +245,57 @@ class Map extends Component {
                     getLineWidth: selectedDataZone,
                 },
             }),
+
+            new GeoJsonLayer({
+                id: 'threed-eta-left',
+                data: dataZones,
+                opacity: opacity,
+                getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                stroked: true,
+                filled: true,
+                lineWidthUnits: "pixels",
+                getFillColor: f => this._getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {
+                    info.handled = true;
+                    this._handleGeoJsonLayerOnClick(event);
+                },
+                extruded: true,
+                wireframe: true,
+                getElevation: f => this._getElevationValue(f.id),
+                elevationScale: 1,
+                elevationRange: [0, 10000],
+                pickable: true,
+                onHover: this._handleMapOnHover,
+                updateTriggers: {
+                    getFillColor: [eta, etaView, colorScheme],
+                    getLineWidth: selectedDataZone,
+                    getElevation: f => this._getElevationValue(f.id)
+                },
+            }),
+
+            new GeoJsonLayer({
+                id: 'eta-left',
+                data: dataZones,
+                opacity: opacity,
+                getLineWidth: f => this._matchesSelectedDataZone(f.id),
+                stroked: true,
+                filled: true,
+                lineWidthUnits: "pixels",
+                getFillColor: f => this._getColor(f.id),
+                getLineColor: [255, 255, 255],
+                onClick: (event, info) => {
+                    info.handled = true;
+                    this._handleGeoJsonLayerOnClick(event);
+                },
+                pickable: true,
+                onHover: this._handleMapOnHover,
+                updateTriggers: {
+                    getFillColor: [eta, etaView, colorScheme],
+                    getLineWidth: selectedDataZone,
+                },
+            }),
+
             new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
@@ -300,6 +366,7 @@ const mapStateToProps = (state) => {
         selectedDataZone: state.selectedDataZone,
         clinics: state.clinics,
         tooltip: state.mapTooltip,
+        selectorId: state.selectorId
     }
 };
 

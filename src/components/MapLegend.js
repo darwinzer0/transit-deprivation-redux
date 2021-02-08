@@ -75,6 +75,11 @@ class MapLegend extends Component {
             vmax = timeLimit;
         }
 
+        //TODO: vmax as 60 is just a guess, it should be a daynamically change stdev max? 
+        if (etaView === "stdev") {
+            vmin = 0;
+            vmax = 60;
+        }
         let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
         let colorScale = scaleSequential([0, 1], mapColorSchemeInterpolator);
         let tickScale = scaleLinear().domain([0, 1]).range([vmin, vmax]);

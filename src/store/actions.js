@@ -11,6 +11,13 @@ export function setEtaView(etaView) {
     }
 }
 
+export function setSelectorId(selectorId) {
+    return {
+        type: types.SET_SELECTOR_ID,
+        selectorId
+    }
+}
+
 export function setDestinationDataset(destinationDataset) {
     return {
         type: types.SET_DESTINATION_DATASET,

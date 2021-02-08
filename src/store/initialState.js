@@ -12,7 +12,9 @@ export default {
 
     // filter/selection values
     destinationDataset: "None",
-    etaView: "avail",
+    etaView: { rightMap: "avail",
+               leftMap: "avail"},
+    selectorId: "rightMapSelect", 
     timeLimit: 60,
 
     // map state

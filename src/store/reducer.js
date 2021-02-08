@@ -8,6 +8,11 @@ export default function reducer(state = initialState, action) {
                 ...state,  //return a copy of the state object
                 etaView: action.etaView
             };
+        case types.SET_SELECTOR_ID:
+            return {
+                ...state,  
+                selectorId: action.selectorId
+            };
         case types.SET_DESTINATION_DATASET:
             return {
                 ...state,
