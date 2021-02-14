@@ -17,7 +17,7 @@ const styles = (theme) => ({
 });
 
 class MapColorSchemeSelector extends Component {
-
+ 
     _handleMapColorSchemeChange = (event) => {
         const { setMapColorScheme } = this.props;
         setMapColorScheme(event.target.value);
@@ -38,6 +38,7 @@ class MapColorSchemeSelector extends Component {
                     <MenuItem value={"BlueGreen"}>BlueGreen</MenuItem>
                     <MenuItem value={"Viridis"}>Viridis</MenuItem>
                     <MenuItem value={"Turbo"}>Turbo</MenuItem>
+                    <MenuItem value={"Diverging"}>Diverging</MenuItem>
                 </Select>
             </div>
         );

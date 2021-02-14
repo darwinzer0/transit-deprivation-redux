@@ -1,4 +1,4 @@
-import {interpolateViridis, interpolateTurbo, interpolateBuGn} from 'd3-scale-chromatic';
+import {interpolateViridis, interpolateTurbo, interpolateBuGn, interpolateRdBu} from 'd3-scale-chromatic';
 
 export function mapColorSchemeNameToInterpolator(name) {
     let interp = () => {};
@@ -12,6 +12,10 @@ export function mapColorSchemeNameToInterpolator(name) {
         case "Turbo":
             interp = interpolateTurbo;
             break;
+        case "Diverging":
+            interp = interpolateRdBu;
+            break;
     }
+    //console.log("interp ", interp);
     return(interp);
 }

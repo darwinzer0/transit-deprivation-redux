@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withStyles, createMuiTheme } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
 import { mapColorSchemeNameToInterpolator } from "../utils/ColorScheme";
-import { scaleSequential, scaleLinear } from "d3";
+import { scaleSequential, scaleLinear} from "d3";
 // color helpers
 var tinycolor = require("tinycolor2");
 
@@ -41,7 +41,7 @@ class MapLegend extends Component {
 
     label = () => {
         const { etaView } = this.props;
-        let l = "";
+        let l = "avail";
         switch (etaView){
             case "mean":
                 l = "Mean Travel Time (minutes)"
@@ -59,19 +59,29 @@ class MapLegend extends Component {
     }
 
     render() {
-        const { classes, minValue, maxValue, etaView, colorScheme, opacity } = this.props;
+        const { classes, eta, minValue, maxValue, etaView, colorScheme, opacity, timeLimit } = this.props;
         let width = 300;
         let height = 8;
         let xpad = 5;
 
         let vmin = minValue;
         let vmax = maxValue;
+        if (etaView === "mean") {
+            vmin = 0;
+            vmax = timeLimit;
+        }
+
         if (etaView === "avail") {
             vmin = minValue * 100;
             vmax = maxValue * 100;
         }
 
-        let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);
+        if (etaView === "stdev") {
+            vmin = Math.floor(eta.stdev.min);
+            vmax = Math.ceil(eta.stdev.max);
+        }
+
+        let mapColorSchemeInterpolator = mapColorSchemeNameToInterpolator(colorScheme);      
         let colorScale = scaleSequential([0, 1], mapColorSchemeInterpolator);
         let tickScale = scaleLinear().domain([0, 1]).range([vmin, vmax]);
         let tickValues = tickScale.ticks().map(value => Math.round(tickScale(value)));
@@ -130,7 +140,7 @@ class MapLegend extends Component {
                             key={"label"}
                             className={classes.colorBarLabel}
                             fill={"currentColor"}
-                        >{this.label}</text>
+                        >{this.label()}</text>
                     </g>
                 </svg>
             </Paper>
@@ -142,8 +152,11 @@ const mapStateToProps = (state) => {
     return {
         minValue: state.mapMinValue,
         maxValue: state.mapMaxValue,
+        timeLimit: state.timeLimit,
         colorScheme: state.mapColorScheme,
         opacity: state.mapOpacity,
+        etaView: state.etaView,
+        eta: state.eta,
     }
 };
 
