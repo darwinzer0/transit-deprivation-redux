@@ -29,6 +29,7 @@ class TravelTimePlot extends Component {
         // console.log(valid, typeof query);
         // TODO: valid is always undefined, need to find the old code or ask Sina, what is valid here
         // the code in the if() {} block never gets excuted as it's always evaluated to false
+        // current quick fix is just say valid is always true in init state 
         let points = [[0, 0]];
         if (eta != null && typeof query !== 'undefined'&& query.id in eta){
 

@@ -42,4 +42,7 @@ export default {
     // data, derived data from server
     locationDT: null,
     eta: null,
+    
+    //TODO: need to find the old code or check with Sina, how valid is defined
+    valid: true,
 }
