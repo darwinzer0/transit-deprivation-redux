@@ -25,21 +25,23 @@ class TravelTimePlot extends Component {
     render() {
         const { data, query, locIdx, idxT, fullEta, valid, etaView} = this.props;
         const eta = (valid && fullEta) ? fullEta[etaView]["values"] : null;
-
+        
+        // console.log(valid, typeof query);
+        // TODO: valid is always undefined, need to find the old code or ask Sina, what is valid here
+        // the code in the if() {} block never gets excuted as it's always evaluated to false
         let points = [[0, 0]];
-        if (eta != null && typeof query !== 'undefined' && query.id in eta){
+        if (eta != null && typeof query !== 'undefined'&& query.id in eta){
 
             let idx = locIdx[query.id];
             let times = data[idx];
             points = Object.keys(times).map((key) => [idxT[key], times[key]]); // timestamps should be ms
-
         }
 
         const series = new TimeSeries({
             name: "Travel Time",
             columns: ["time", "value"],
             points: points,
-            // tz: "Pacific/Auckland"
+            //tz: "Pacific/Auckland"
         });
 
         let min = series.min();
