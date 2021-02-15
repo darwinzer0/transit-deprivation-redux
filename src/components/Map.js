@@ -175,11 +175,33 @@ class Map extends Component {
                 },
             }),
 
+            // new GeoJsonLayer({
+            //     id: 'eta',
+            //     data: dataZones,
+            //     opacity: opacity,
+            //     getLineWidth: f => this._matchesSelectedDataZone(f.id),
+            //     stroked: true,
+            //     filled: true,
+            //     lineWidthUnits: "pixels",
+            //     getFillColor: f => this._getColor(f.id),
+            //     getLineColor: [255, 255, 255],
+            //     onClick: (event, info) => {
+            //         info.handled = true;
+            //         this._handleGeoJsonLayerOnClick(event);
+            //     },
+            //     pickable: true,
+            //     onHover: this._handleMapOnHover,
+            //     updateTriggers: {
+            //         getFillColor: [eta, etaView, colorScheme],
+            //         getLineWidth: selectedDataZone,
+            //     },
+            // }),
+
             new GeoJsonLayer({
                 id: 'clinics',
                 data: clinics,
                 pointRadiusMinPixels: 5,
-                getFillColor: [106, 13, 173, 255],
+                getFillColor: [106, 13, 173, 255], // [239, 138, 98, 255]
                 visible: destinationOverlay === "Diabetes Clinics"? true: false
             })
         ];
